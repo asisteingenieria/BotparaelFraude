@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest
+ruff
+pdfplumber  # solo para re-extraer coordenadas si cambia la plantilla

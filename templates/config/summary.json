@@ -1,0 +1,106 @@
+{
+  "templateFile": "Summary.pdf",
+  "pageSizes": {
+    "0": [
+      612.0,
+      792.0
+    ]
+  },
+  "fonts": {
+    "regular": "Arial",
+    "bold": "Arial-Bold"
+  },
+  "coverRects": [
+    {
+      "page": 0,
+      "x0": 20.0,
+      "y0": 496.5,
+      "x1": 200.0,
+      "y1": 509.0,
+      "note": "tapa el nombre del firmante de ejemplo (Marvin...)"
+    },
+    {
+      "page": 0,
+      "x0": 20.0,
+      "y0": 484.5,
+      "x1": 150.0,
+      "y1": 496.5,
+      "note": "tapa el telefono de ejemplo (columna izquierda, bajo el nombre)"
+    },
+    {
+      "page": 0,
+      "x0": 208.0,
+      "y0": 428.5,
+      "x1": 320.0,
+      "y1": 443.0,
+      "note": "tapa 'telefono via WhatsApp' de ejemplo (columna Firma)"
+    },
+    {
+      "page": 0,
+      "x0": 294.0,
+      "y0": 416.5,
+      "x1": 360.0,
+      "y1": 428.0,
+      "note": "tapa la IP de ejemplo"
+    }
+  ],
+  "textFields": [
+    {
+      "id": "nombre_cliente",
+      "dataPath": "nombre_completo",
+      "page": 0,
+      "x": 25.0,
+      "y": 500.3,
+      "font": "regular",
+      "fontSize": 8
+    },
+    {
+      "id": "telefono_evento",
+      "dataPath": "telefono_principal",
+      "page": 0,
+      "x": 25.0,
+      "y": 488.0,
+      "font": "regular",
+      "fontSize": 8,
+      "prefix": "1-"
+    },
+    {
+      "id": "telefono_firma",
+      "dataPath": "telefono_principal",
+      "page": 0,
+      "x": 212.3,
+      "y": 436.0,
+      "font": "regular",
+      "fontSize": 8,
+      "prefix": "1-",
+      "suffix": " via WhatsApp"
+    },
+    {
+      "id": "ip_direccion",
+      "dataPath": "ip_estado",
+      "page": 0,
+      "x": 295.9,
+      "y": 423.5,
+      "font": "regular",
+      "fontSize": 8
+    }
+  ],
+  "signatureFields": [
+    {
+      "page": 0,
+      "x": 221.0,
+      "y": 485.0,
+      "width": 46.0,
+      "height": 18.0,
+      "note": "el corchete morado y 'Firmado por:' ya vienen en la plantilla (visibles); esta casilla solo estampa la firma en el hueco en blanco que dejo la firma de ejemplo borrada"
+    }
+  ],
+  "signatureMeta": {
+    "code": {
+      "page": 0,
+      "x": 221.0,
+      "y": 478.0,
+      "fontSize": 4.5
+    }
+  }
+}

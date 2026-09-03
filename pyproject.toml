@@ -1,0 +1,15 @@
+[project]
+name = "bot-plantillas"
+version = "0.1.0"
+description = "Bot que genera documentos masivos desde una plantilla a partir de un Excel"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

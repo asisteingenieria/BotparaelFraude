@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoría de Firmas</title>
+<style>
+  :root {
+    --azul: #1a2a6e; --azul-claro: #eef1fb; --borde: #d9dde8;
+    --texto: #23262f; --gris: #6b7280; --ok: #0a7a2f; --error: #b3261e;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--texto);
+         background: #f6f7fa; min-height: 100vh; }
+  header { background: var(--azul); color: #fff; padding: 14px 24px;
+           display: flex; align-items: baseline; gap: 12px; }
+  header h1 { font-size: 18px; font-weight: 600; }
+  header span { font-size: 12px; opacity: .75; }
+  main { display: grid; grid-template-columns: 1fr 480px; gap: 16px;
+         padding: 16px 24px; align-items: start; }
+  .panel { background: #fff; border: 1px solid var(--borde); border-radius: 10px;
+           padding: 16px; }
+  .panel h2 { font-size: 14px; margin-bottom: 10px; color: var(--azul); }
+  .fila { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  input[type=file] { font-size: 13px; }
+  input[type=text], input[type=number], select {
+    border: 1px solid var(--borde); border-radius: 6px; padding: 6px 8px;
+    font-size: 13px; }
+  button { background: var(--azul); color: #fff; border: 0; border-radius: 6px;
+           padding: 7px 14px; font-size: 13px; cursor: pointer; }
+  button.sec { background: #fff; color: var(--azul); border: 1px solid var(--azul); }
+  button.sec.activa { background: var(--azul); color: #fff; }
+  button.sec.peligro { background: var(--error); color: #fff; border-color: var(--error); }
+  button:disabled { opacity: .5; cursor: default; }
+  .progreso { height: 8px; background: var(--azul-claro); border-radius: 4px;
+              overflow: hidden; margin-top: 10px; }
+  .progreso div { height: 100%; background: var(--azul); width: 0%; transition: width .4s; }
+  #estadoCarga { font-size: 12px; color: var(--gris); margin-top: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 10px; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--borde);
+           white-space: nowrap; }
+  th { color: var(--gris); font-weight: 600; font-size: 11.5px;
+       text-transform: uppercase; letter-spacing: .04em; }
+  tr:hover td { background: var(--azul-claro); cursor: pointer; }
+  tr.activa td { background: var(--azul-claro); }
+  .mono { font-family: Consolas, monospace; font-size: 11.5px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px;
+          font-size: 11px; background: var(--azul-claro); color: var(--azul); }
+  .pill.excel { background: #e8f5ec; color: var(--ok); }
+  .pill.otro { background: #fdeee0; color: #a8480f; }
+  .pill.imagen { background: #eaf3ea; color: #1f6b3a; }
+  .pill.original { background: var(--azul-claro); color: var(--azul); }
+  #visor { position: sticky; top: 16px; }
+  #visor iframe { width: 100%; height: 620px; border: 1px solid var(--borde);
+                  border-radius: 8px; background: #fff; }
+  #metaCarta { font-size: 12px; color: var(--gris); margin-top: 8px;
+               line-height: 1.7; word-break: break-all; }
+  #metaCarta b { color: var(--texto); }
+  .paginacion { display: flex; gap: 8px; align-items: center; margin-top: 10px;
+                font-size: 12.5px; color: var(--gris); }
+  .aviso { font-size: 12px; color: var(--gris); margin-top: 6px; }
+  .etiqueta-muestra { background: #fff7e6; color: #8a5a00; border: 1px solid #f0d9a8;
+                      padding: 4px 10px; border-radius: 6px; font-size: 12px;
+                      display: none; margin-top: 8px; }
+  .espera { display: none; align-items: center; gap: 10px; margin-top: 10px; }
+  .espera.activa { display: flex; }
+  .espera img { width: 52px; height: 52px; object-fit: contain; }
+  .espera span { font-size: 12.5px; color: var(--azul); font-weight: 600; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Auditoría de Firmas</h1>
+  <span>Bot cartas obama &mdash; cartas generadas y diseños plasmados</span>
+</header>
+
+<main>
+  <section>
+    <div class="panel">
+      <h2>1. Cargar Excel</h2>
+      <div class="fila">
+        <input type="file" id="archivo" accept=".xlsx,.xlsm">
+        <select id="selModulo" title="Plantilla / módulo a usar">
+          <option value="original">Módulo original (Obamacare B2)</option>
+          <option value="otro">Módulo OtroM (pantallazo de la página de datos)</option>
+          <option value="imagen">Módulo Imagen (firma real por titular)</option>
+        </select>
+        <button id="btnSubir">Subir y generar cartas</button>
+      </div>
+      <div class="progreso"><div id="barra"></div></div>
+      <div id="estadoCarga">Sin carga en curso.</div>
+      <div class="espera" id="espera">
+        <img src="/static/img/robot-waving.gif" alt="Generando cartas">
+        <span>Generando cartas, un momento&hellip;</span>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>Imágenes de firma real (módulo Imagen)</h2>
+      <div class="fila">
+        <input type="file" id="archivosFirma" accept=".png,.jpg,.jpeg" multiple>
+        <button id="btnSubirFirmas">Subir imagen(es)</button>
+      </div>
+      <div id="estadoFirmas" class="aviso">
+        El nombre de cada archivo debe coincidir con el nombre completo del titular en el Excel (ej. "Juan Sebastian Acosta.png").
+      </div>
+      <table>
+        <thead><tr><th>Archivo (nombre del titular)</th><th>Tamaño</th><th></th></tr></thead>
+        <tbody id="cuerpoFirmas"></tbody>
+      </table>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <h2>2. Cartas gestionadas</h2>
+      <div class="fila" id="tabsFechaPixelada" style="margin-bottom:8px">
+        <button class="sec activa" data-valor="" id="tabTodas">Todas</button>
+        <button class="sec" data-valor="si" id="tabPixelada">Fecha pixelada</button>
+        <button class="sec" data-valor="no" id="tabNoPixelada">Fecha sin pixelar</button>
+      </div>
+      <div class="fila">
+        <select id="selCarga" title="Filtrar por carga"><option value="">Todas las cargas</option></select>
+        <input type="text" id="buscar" placeholder="Buscar nombre o correo...">
+        <button class="sec" id="btnBuscar">Filtrar</button>
+        <button class="sec" id="btnZip" disabled title="Elige una carga específica para descargarla en .zip">Descargar ZIP</button>
+        <div class="espera" id="esperaZip" style="margin-top:0">
+          <img src="/static/img/robot-waving.gif" alt="Preparando ZIP">
+          <span>Preparando ZIP&hellip;</span>
+        </div>
+        <button class="sec" id="btnEliminarCarga" disabled title="Elige una carga específica para eliminarla (borra cartas, summaries y libera espacio en disco)">Eliminar carga</button>
+        <span style="flex:1"></span>
+        <label style="font-size:12.5px;color:var(--gris)">Muestra de</label>
+        <input type="number" id="nMuestra" value="10" min="1" max="200" style="width:64px">
+        <button id="btnMuestra">Auditar al azar</button>
+      </div>
+      <div class="etiqueta-muestra" id="avisoMuestra"></div>
+      <table>
+        <thead><tr>
+          <th>#</th><th>Cliente</th><th>Correo</th><th>Diseño</th>
+          <th>Fecha firma</th><th>Tamaño</th><th>SHA-256</th><th>UUID</th><th>Origen</th><th>Módulo</th><th>Fecha pixelada</th>
+        </tr></thead>
+        <tbody id="cuerpoCartas"></tbody>
+      </table>
+      <div class="paginacion">
+        <button class="sec" id="btnPrev">&larr;</button>
+        <span id="infoPagina">&mdash;</span>
+        <button class="sec" id="btnNext">&rarr;</button>
+      </div>
+    </div>
+  </section>
+
+  <aside id="visor">
+    <div class="panel">
+      <h2>3. Carta seleccionada</h2>
+      <div class="fila" id="tabsVisor" style="display:none; margin-bottom:8px">
+        <button class="sec activa" id="btnVerCarta">Carta</button>
+        <button class="sec" id="btnVerSummary">Summary</button>
+      </div>
+      <iframe id="pdf" title="Vista previa de la carta"></iframe>
+      <div id="metaCarta">Haz clic en una carta para revisarla.</div>
+    </div>
+  </aside>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let pagina = 1, porPagina = 25, total = 0, cargaActual = "", modoMuestra = false, filtroFechaPixelada = "";
+
+function kb(bytes) { return (bytes / 1024).toFixed(1) + " KB"; }
+function esc(t) { const d = document.createElement("div"); d.textContent = t ?? ""; return d.innerHTML; }
+function moduloLabel(m) { return m === "otro" ? "OtroM" : m === "imagen" ? "Imagen" : "original"; }
+
+async function subir() {
+  const archivo = $("archivo").files[0];
+  if (!archivo) { alert("Selecciona un archivo Excel primero."); return; }
+  $("btnSubir").disabled = true;
+  $("espera").classList.add("activa");
+  const fd = new FormData();
+  fd.append("archivo", archivo);
+  fd.append("modulo", $("selModulo").value);
+  const r = await fetch("/cargas", { method: "POST", body: fd });
+  if (!r.ok) {
+    $("estadoCarga").textContent = "Error al subir: " + (await r.text());
+    $("btnSubir").disabled = false;
+    $("espera").classList.remove("activa");
+    return;
+  }
+  const { carga_id } = await r.json();
+  seguirProgreso(carga_id);
+}
+
+async function seguirProgreso(id) {
+  const r = await fetch("/cargas/" + id);
+  const c = await r.json();
+  const hechas = c.filas_ok + c.filas_error;
+  const pct = c.total_filas ? Math.round(100 * hechas / c.total_filas) : 0;
+  $("barra").style.width = pct + "%";
+  $("estadoCarga").textContent =
+    `${c.archivo} [${moduloLabel(c.modulo)}]: ${c.estado} — ` +
+    `${hechas}/${c.total_filas || "?"} filas (OK ${c.filas_ok}, errores ${c.filas_error})`;
+  if (c.estado === "procesando") { setTimeout(() => seguirProgreso(id), 1500); return; }
+  $("btnSubir").disabled = false;
+  $("espera").classList.remove("activa");
+  await cargarCargas();
+  $("selCarga").value = id;
+  $("btnZip").disabled = !id;
+  $("btnEliminarCarga").disabled = !id;
+  cargaActual = id; pagina = 1; modoMuestra = false;
+  cargarCartas();
+}
+
+async function cargarCargas() {
+  const cargas = await (await fetch("/cargas")).json();
+  const sel = $("selCarga");
+  const actual = sel.value;
+  sel.innerHTML = '<option value="">Todas las cargas</option>' + cargas.map(c =>
+    `<option value="${c.id}">${esc(c.archivo)} [${moduloLabel(c.modulo)}] — ${c.filas_ok} cartas (${(c.creada_en || "").slice(0, 16).replace("T", " ")})</option>`
+  ).join("");
+  sel.value = actual;
+}
+
+function pintarCartas(cartas, desde) {
+  $("cuerpoCartas").innerHTML = cartas.map((c, i) => `
+    <tr data-id="${c.id}" onclick="verCarta('${c.id}', this)">
+      <td>${c.fila_excel ?? desde + i + 1}</td>
+      <td>${esc(c.nombre_completo)}</td>
+      <td>${esc(c.email)}</td>
+      <td><span class="pill">${esc(c.firma_estilo_id)}</span></td>
+      <td>${esc(c.firma_fecha_hora)}</td>
+      <td>${kb(c.pdf_bytes)}</td>
+      <td class="mono" title="${c.pdf_sha256}">${c.pdf_sha256.slice(0, 10)}&hellip;</td>
+      <td class="mono" title="${c.id}">${c.id.slice(0, 8)}&hellip;</td>
+      <td><span class="pill ${c.origen}">${c.origen}</span></td>
+      <td><span class="pill ${c.modulo}">${moduloLabel(c.modulo)}</span></td>
+      <td>${c.modulo === "otro" ? `<span class="pill ${c.fecha_pixelada ? "otro" : "original"}">${c.fecha_pixelada ? "sí" : "no"}</span>` : "—"}</td>
+    </tr>`).join("") || '<tr><td colspan="11" style="color:var(--gris)">Sin cartas.</td></tr>';
+  window._cartas = Object.fromEntries(cartas.map(c => [c.id, c]));
+}
+
+async function cargarCartas() {
+  modoMuestra = false; $("avisoMuestra").style.display = "none";
+  const q = new URLSearchParams({
+    carga_id: $("selCarga").value, q: $("buscar").value,
+    fecha_pixelada: filtroFechaPixelada,
+    pagina: String(pagina), por_pagina: String(porPagina),
+  });
+  const data = await (await fetch("/cartas?" + q)).json();
+  total = data.total;
+  pintarCartas(data.cartas, (pagina - 1) * porPagina);
+  const maxPag = Math.max(1, Math.ceil(total / porPagina));
+  $("infoPagina").textContent = `página ${pagina} de ${maxPag} — ${total} cartas`;
+  $("btnPrev").disabled = pagina <= 1;
+  $("btnNext").disabled = pagina >= maxPag;
+}
+
+async function descargarZip() {
+  const cargaId = $("selCarga").value;
+  if (!cargaId) return;
+  $("btnZip").disabled = true;
+  $("esperaZip").classList.add("activa");
+  try {
+    const r = await fetch("/cargas/" + cargaId + "/zip");
+    if (!r.ok) { alert("Error al generar el ZIP: " + (await r.text())); return; }
+    const cd = r.headers.get("Content-Disposition") || "";
+    const m = cd.match(/filename="?([^"]+)"?/);
+    const nombre = m ? m[1] : "cartas.zip";
+    const blob = await r.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = nombre;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
+  } finally {
+    $("esperaZip").classList.remove("activa");
+    $("btnZip").disabled = !$("selCarga").value;
+  }
+}
+
+let confirmandoEliminar = null;
+async function eliminarCarga() {
+  const cargaId = $("selCarga").value;
+  if (!cargaId) return;
+  const boton = $("btnEliminarCarga");
+
+  if (confirmandoEliminar !== cargaId) {
+    confirmandoEliminar = cargaId;
+    boton.textContent = "¿Seguro? Confirmar";
+    boton.classList.add("peligro");
+    clearTimeout(boton._timeoutConfirmacion);
+    boton._timeoutConfirmacion = setTimeout(() => {
+      confirmandoEliminar = null;
+      boton.textContent = "Eliminar carga";
+      boton.classList.remove("peligro");
+    }, 4000);
+    return;
+  }
+
+  clearTimeout(boton._timeoutConfirmacion);
+  confirmandoEliminar = null;
+  boton.disabled = true;
+  boton.textContent = "Eliminando...";
+  boton.classList.remove("peligro");
+  try {
+    const r = await fetch("/cargas/" + cargaId, { method: "DELETE" });
+    if (!r.ok) { alert("Error al eliminar: " + (await r.text())); return; }
+    if (cargaActual === cargaId) { cargaActual = ""; modoMuestra = false; }
+    $("selCarga").value = "";
+    pagina = 1;
+    await cargarCargas();
+    await cargarCartas();
+  } finally {
+    boton.textContent = "Eliminar carga";
+    boton.disabled = !$("selCarga").value;
+  }
+}
+
+async function muestraAleatoria() {
+  const n = $("nMuestra").value || 10;
+  const q = new URLSearchParams({ n, carga_id: $("selCarga").value, fecha_pixelada: filtroFechaPixelada });
+  const data = await (await fetch("/cartas/muestra?" + q)).json();
+  modoMuestra = true;
+  pintarCartas(data.cartas, 0);
+  const aviso = $("avisoMuestra");
+  aviso.style.display = "block";
+  aviso.textContent = `Muestra aleatoria de ${data.n} carta(s) para auditoría — ` +
+    `vuelve a "Filtrar" para ver el listado completo.`;
+  $("infoPagina").textContent = `muestra aleatoria (${data.n})`;
+}
+
+function verCarta(id, fila) {
+  document.querySelectorAll("tr.activa").forEach(t => t.classList.remove("activa"));
+  fila.classList.add("activa");
+  const c = window._cartas[id];
+  window._cartaActual = c;
+  $("tabsVisor").style.display = c.tiene_summary ? "flex" : "none";
+  $("btnVerCarta").classList.add("activa");
+  $("btnVerSummary").classList.remove("activa");
+  $("pdf").src = `/cartas/${id}/pdf#page=4&zoom=90`;
+  $("metaCarta").innerHTML =
+    `<b>${esc(c.nombre_completo)}</b> &lt;${esc(c.email)}&gt;<br>` +
+    `Módulo: <b>${c.modulo === "otro" ? "OtroM (pantallazo de página de datos)" : c.modulo === "imagen" ? "Imagen (firma real por titular)" : "original"}</b>` +
+    `${c.modulo === "otro" ? ` · Fecha pixelada: <b>${c.fecha_pixelada ? "sí" : "no"}</b>` : ""}<br>` +
+    `Diseño: <b>${esc(c.firma_estilo_id)}</b> · Firmada: ${esc(c.firma_fecha_hora)} · ` +
+    `Tamaño: <b>${kb(c.pdf_bytes)}</b><br>` +
+    `UUID: <span class="mono">${c.id}</span><br>` +
+    `SHA-256: <span class="mono">${c.pdf_sha256}</span>`;
+}
+
+function verPdfCarta() {
+  const c = window._cartaActual;
+  if (!c) return;
+  $("btnVerCarta").classList.add("activa");
+  $("btnVerSummary").classList.remove("activa");
+  $("pdf").src = `/cartas/${c.id}/pdf#page=4&zoom=90`;
+}
+
+function verSummary() {
+  const c = window._cartaActual;
+  if (!c || !c.tiene_summary) return;
+  $("btnVerSummary").classList.add("activa");
+  $("btnVerCarta").classList.remove("activa");
+  $("pdf").src = `/cartas/${c.id}/summary#zoom=90`;
+}
+
+$("btnVerCarta").onclick = verPdfCarta;
+$("btnVerSummary").onclick = verSummary;
+
+function elegirTabFechaPixelada(boton) {
+  filtroFechaPixelada = boton.dataset.valor;
+  document.querySelectorAll("#tabsFechaPixelada button").forEach(b => b.classList.remove("activa"));
+  boton.classList.add("activa");
+  pagina = 1;
+  cargarCartas();
+}
+$("tabTodas").onclick = () => elegirTabFechaPixelada($("tabTodas"));
+$("tabPixelada").onclick = () => elegirTabFechaPixelada($("tabPixelada"));
+$("tabNoPixelada").onclick = () => elegirTabFechaPixelada($("tabNoPixelada"));
+
+async function cargarFirmasReales() {
+  const lista = await (await fetch("/firmas-reales")).json();
+  $("cuerpoFirmas").innerHTML = lista.map(f => `
+    <tr data-nombre="${esc(f.nombre)}">
+      <td>${esc(f.nombre)}</td>
+      <td>${kb(f.bytes)}</td>
+      <td><button class="sec btnBorrarFirma">Borrar</button></td>
+    </tr>`).join("") || '<tr><td colspan="3" style="color:var(--gris)">Sin imágenes cargadas.</td></tr>';
+}
+
+async function subirFirmasReales() {
+  const archivos = $("archivosFirma").files;
+  if (!archivos.length) { alert("Selecciona una o más imágenes primero."); return; }
+  $("btnSubirFirmas").disabled = true;
+  const fd = new FormData();
+  for (const f of archivos) fd.append("archivos", f);
+  try {
+    const r = await fetch("/firmas-reales", { method: "POST", body: fd });
+    if (!r.ok) { $("estadoFirmas").textContent = "Error al subir: " + (await r.text()); return; }
+    const { guardados } = await r.json();
+    $("estadoFirmas").textContent = guardados.length
+      ? `Guardadas: ${guardados.join(", ")}`
+      : "Ningún archivo válido (solo .png/.jpg/.jpeg).";
+    $("archivosFirma").value = "";
+    await cargarFirmasReales();
+  } finally {
+    $("btnSubirFirmas").disabled = false;
+  }
+}
+
+async function borrarFirmaReal(nombre) {
+  await fetch("/firmas-reales/" + encodeURIComponent(nombre), { method: "DELETE" });
+  await cargarFirmasReales();
+}
+
+$("btnSubirFirmas").onclick = subirFirmasReales;
+$("cuerpoFirmas").addEventListener("click", e => {
+  if (e.target.classList.contains("btnBorrarFirma")) {
+    borrarFirmaReal(e.target.closest("tr").dataset.nombre);
+  }
+});
+cargarFirmasReales();
+
+$("btnSubir").onclick = subir;
+$("btnBuscar").onclick = () => { pagina = 1; cargarCartas(); };
+$("btnMuestra").onclick = muestraAleatoria;
+$("btnPrev").onclick = () => { if (pagina > 1) { pagina--; cargarCartas(); } };
+$("btnNext").onclick = () => { pagina++; cargarCartas(); };
+$("btnZip").onclick = descargarZip;
+$("btnEliminarCarga").onclick = eliminarCarga;
+$("selCarga").onchange = () => {
+  pagina = 1;
+  $("btnZip").disabled = !$("selCarga").value;
+  $("btnEliminarCarga").disabled = !$("selCarga").value;
+  confirmandoEliminar = null;
+  $("btnEliminarCarga").textContent = "Eliminar carga";
+  $("btnEliminarCarga").classList.remove("peligro");
+  cargarCartas();
+};
+$("buscar").addEventListener("keydown", e => { if (e.key === "Enter") { pagina = 1; cargarCartas(); } });
+
+cargarCargas().then(cargarCartas);
+</script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+# Entorno virtual
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# Variables de entorno / credenciales (BD, etc.)
+.env
+.env.*
+!.env.example
+
+# Datos de entrada (Excels de ejemplo con datos reales del cliente EDWIN
+# AMAYA FONSECA usado como referencia en todo el proyecto — no subir)
+data/*.xlsx
+data/*.xls
+data/*.csv
+
+# PDF firmado real usado como referencia de diseño (nombre, firma, correo,
+# teléfono y rastro de auditoría reales de un cliente) — nunca subir
+templates/EDWIN AMAYA FONSECA.pdf
+
+# Salidas generadas (cartas de prueba, cargas reales de /auditoria, previews,
+# logs de servidor) — todo regenerable, y varias carpetas traen PDFs con
+# datos reales de clientes (SSN, dirección, firma)
+output/*
+!output/documentos/
+output/documentos/*
+!output/documentos/.gitkeep
+
+# Imágenes de firmas reales subidas por clientes (dato sensible, módulo "imagen")
+firmas_reales/*
+!firmas_reales/.gitkeep
+
+# Archivos sueltos de prueba/scratch en la raíz del repo (capturas, PDFs y
+# Excels de verificación manual — varios con datos reales de clientes)
+scratch_*
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

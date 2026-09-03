@@ -1,0 +1,444 @@
+{
+  "templateFile": "Obamacare  B2 OtroM.pdf",
+  "pageSizes": {
+    "0": [
+      612.0,
+      792.0
+    ],
+    "1": [
+      612.0,
+      792.0
+    ],
+    "2": [
+      574.0,
+      1020.0
+    ],
+    "3": [
+      612.0,
+      792.0
+    ]
+  },
+  "fonts": {
+    "regular": "Arial",
+    "bold": "Arial-Bold",
+    "title": "Calibri",
+    "labelBold": "Calibri-Bold",
+    "valueLight": "Calibri-Light"
+  },
+  "coverRects": [],
+  "title": {
+    "id": "hola_nombre",
+    "dataPath": "nombre_completo",
+    "page": 2,
+    "x": 71.0,
+    "y": 815.7,
+    "font": "labelBold",
+    "fontSize": 21,
+    "maxWidth": 490.0
+  },
+  "textFields": [
+    {
+      "id": "yo_nombre",
+      "dataPath": "nombre_completo",
+      "page": 1,
+      "x": 105.0,
+      "y": 671.7,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 173.0
+    },
+    {
+      "id": "agente_nombre_inline",
+      "dataPath": "agente_nombre",
+      "page": 1,
+      "x": 88.2,
+      "y": 661.7,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 155.0
+    },
+    {
+      "id": "agente_nombre",
+      "dataPath": "agente_nombre",
+      "page": 1,
+      "x": 294.0,
+      "y": 356.0,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agente_npn",
+      "dataPath": "agente_npn",
+      "page": 1,
+      "x": 294.0,
+      "y": 344.0,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agente_telefono",
+      "dataPath": "agente_telefono",
+      "page": 1,
+      "x": 294.0,
+      "y": 333.0,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agente_email",
+      "dataPath": "agente_email",
+      "page": 1,
+      "x": 294.0,
+      "y": 321.8,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agencia_nombre",
+      "dataPath": "agencia_nombre",
+      "page": 1,
+      "x": 294.0,
+      "y": 299.4,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agencia_npn",
+      "dataPath": "agencia_npn",
+      "page": 1,
+      "x": 294.0,
+      "y": 287.7,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agencia_propietario",
+      "dataPath": "agencia_propietario",
+      "page": 1,
+      "x": 294.0,
+      "y": 275.7,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agencia_telefono",
+      "dataPath": "agencia_telefono",
+      "page": 1,
+      "x": 294.0,
+      "y": 263.9,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "agencia_email",
+      "dataPath": "agencia_email",
+      "page": 1,
+      "x": 294.0,
+      "y": 251.9,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 225.0
+    },
+    {
+      "id": "contacto_nombre",
+      "dataPath": "contacto_nombre|nombre_completo",
+      "page": 1,
+      "x": 290.8,
+      "y": 217.2,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 230.0
+    },
+    {
+      "id": "contacto_telefono",
+      "dataPath": "contacto_telefono|telefono_principal",
+      "page": 1,
+      "x": 290.8,
+      "y": 205.7,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 230.0
+    },
+    {
+      "id": "contacto_email",
+      "dataPath": "contacto_email|email",
+      "page": 1,
+      "x": 290.8,
+      "y": 194.5,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 230.0
+    },
+    {
+      "id": "fecha_consentimiento",
+      "dataPath": "fecha_digitacion|fecha",
+      "page": 1,
+      "x": 290.7,
+      "y": 173.0,
+      "dashDates": true,
+      "font": "regular",
+      "fontSize": 10,
+      "maxWidth": 230.0
+    },
+    {
+      "id": "nombres",
+      "dataPath": "nombres",
+      "page": 2,
+      "x": 88.3,
+      "y": 749.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "apellidos",
+      "dataPath": "apellidos",
+      "page": 2,
+      "x": 89.0,
+      "y": 725.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "social",
+      "dataPath": "social",
+      "page": 2,
+      "x": 69.3,
+      "y": 701.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "numero_social",
+      "dataPath": "numero_social",
+      "page": 2,
+      "x": 118.9,
+      "y": 677.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "estatus_migratorio",
+      "dataPath": "estatus_migratorio",
+      "page": 2,
+      "x": 140.8,
+      "y": 653.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "estado",
+      "dataPath": "estado",
+      "page": 2,
+      "x": 74.6,
+      "y": 629.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "direccion",
+      "dataPath": "direccion",
+      "page": 2,
+      "x": 89.5,
+      "y": 605.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "tipo_vivienda",
+      "dataPath": "tipo_vivienda",
+      "page": 2,
+      "x": 112.2,
+      "y": 581.4,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "codigo_postal",
+      "dataPath": "codigo_postal",
+      "page": 2,
+      "x": 113.5,
+      "y": 557.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "telefono_principal",
+      "dataPath": "telefono_principal",
+      "page": 2,
+      "x": 186.7,
+      "y": 533.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "telefono_adicional",
+      "dataPath": "telefono_adicional",
+      "page": 2,
+      "x": 140.2,
+      "y": 509.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "tipo_ingresos",
+      "dataPath": "tipo_ingresos",
+      "page": 2,
+      "x": 128.7,
+      "y": 485.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "ingresos_totales",
+      "dataPath": "ingresos_totales",
+      "page": 2,
+      "x": 127.0,
+      "y": 461.3,
+      "font": "valueLight",
+      "fontSize": 13.18,
+      "suffix": " USD"
+    },
+    {
+      "id": "aseguradora",
+      "dataPath": "aseguradora",
+      "page": 2,
+      "x": 156.7,
+      "y": 437.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "categoria_tipo_plan",
+      "dataPath": "categoria_tipo_plan",
+      "page": 2,
+      "x": 171.3,
+      "y": 413.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "nombre_plan",
+      "dataPath": "nombre_plan",
+      "page": 2,
+      "x": 128.0,
+      "y": 389.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "prima",
+      "dataPath": "prima",
+      "page": 2,
+      "x": 69.7,
+      "y": 365.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "valor_cotizacion",
+      "dataPath": "valor_cotizacion",
+      "page": 2,
+      "x": 126.9,
+      "y": 341.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "deducible",
+      "dataPath": "deducible",
+      "page": 2,
+      "x": 93.1,
+      "y": 317.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "gasto_maximo_bolsillo",
+      "dataPath": "gasto_maximo_bolsillo",
+      "page": 2,
+      "x": 162.4,
+      "y": 293.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "palabra_seguridad",
+      "dataPath": "palabra_seguridad",
+      "page": 2,
+      "x": 155.6,
+      "y": 245.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    },
+    {
+      "id": "fecha_activacion",
+      "dataPath": "fecha_activacion",
+      "page": 2,
+      "x": 145.9,
+      "y": 269.3,
+      "font": "valueLight",
+      "fontSize": 13.18
+    }
+  ],
+  "signatureMeta": {
+    "header": {
+      "pages": [
+        0,
+        1
+      ],
+      "x": 20.0,
+      "y": 780.0,
+      "fontSize": 10,
+      "note": "correo + fecha/hora arriba a la izquierda, igual al PDF firmado de ejemplo (paginas carta; la pagina 2 grande no lleva encabezado)"
+    },
+    "envelope": {
+      "page": 3,
+      "x": 17.0,
+      "y": 774.6,
+      "fontSize": 8,
+      "label": "Docusign Envelope ID:",
+      "note": "equivalente al 'Docusign Envelope ID:' del ejemplo"
+    },
+    "code": {
+      "page": 3,
+      "x": 162.0,
+      "y": 495.7,
+      "fontSize": 5.7,
+      "note": "codigo corto bajo la linea de firma, casi pegado al brazo inferior del corchete morado (termina en x=159.7), igual al 'KLM3A8F27B61490...' del ejemplo"
+    }
+  },
+  "signatureFields": [
+    {
+      "id": "firma_cliente",
+      "page": 3,
+      "x": 168.0,
+      "y": 502.3,
+      "width": 70.0,
+      "height": 17.9,
+      "note": "caja apoyada 1pt arriba de la linea negra (y=501.3), centrada en X y anclada abajo; height recortado (26->17.9) porque la etiqueta 'Firmado por:' de la plantilla termina en y=522.4 y la caja anterior (top=528.3) le montaba encima -- mismo margen (~2.2pt) que usa el corchete del Summary (templates/config/summary.json), donde la firma no tapa el label"
+    }
+  ],
+  "beneficiaryBlock": {
+    "page": 2,
+    "x": 295.2,
+    "nameY0": 747.6,
+    "statusY0": 723.3,
+    "step": 32.3,
+    "minY": 255.0,
+    "wrapLineHeight": 16.0,
+    "labelFont": "labelBold",
+    "labelSize": 13.7,
+    "font": "valueLight",
+    "fontSize": 13.18,
+    "gap": 6.0,
+    "maxX": 560.0
+  }
+}

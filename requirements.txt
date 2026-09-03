@@ -1,0 +1,13 @@
+pandas
+openpyxl
+docxtpl
+Pillow
+pypdf
+reportlab
+pymupdf
+fastapi
+uvicorn[standard]
+sqlalchemy
+pymysql
+python-dotenv
+python-multipart
