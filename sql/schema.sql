@@ -45,6 +45,8 @@ CREATE TABLE IF NOT EXISTS cartas (
   pdf_bytes         BIGINT       NOT NULL,
   pdf_sha256        CHAR(64)     NOT NULL,
   summary_pdf_path  VARCHAR(500) DEFAULT NULL,
+  ip_estado         VARCHAR(45)  DEFAULT NULL,   -- IP plasmada en el Summary (templates/ips.xlsx)
+  ip_tipo           ENUM('v4','v6') DEFAULT NULL,
   origen            ENUM('excel','api') NOT NULL DEFAULT 'excel',
   modulo            ENUM('original','otro','imagen') NOT NULL DEFAULT 'original',
   fecha_pixelada    TINYINT(1)   NOT NULL DEFAULT 0,

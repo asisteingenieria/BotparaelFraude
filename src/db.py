@@ -97,6 +97,8 @@ class Carta(Base):
     pdf_bytes = Column(BigInteger, nullable=False)
     pdf_sha256 = Column(String(64), nullable=False)
     summary_pdf_path = Column(String(500), nullable=True)
+    ip_estado = Column(String(45), nullable=True)
+    ip_tipo = Column(Enum("v4", "v6"), nullable=True)
     origen = Column(Enum("excel", "api"), nullable=False, default="excel")
     modulo = Column(Enum("original", "otro", "imagen"), nullable=False, default="original")
     fecha_pixelada = Column(Boolean, nullable=False, default=False)
@@ -115,6 +117,8 @@ class Carta(Base):
             "pdf_bytes": self.pdf_bytes,
             "pdf_sha256": self.pdf_sha256,
             "tiene_summary": bool(self.summary_pdf_path),
+            "ip_estado": self.ip_estado,
+            "ip_tipo": self.ip_tipo,
             "origen": self.origen,
             "modulo": self.modulo,
             "fecha_pixelada": bool(self.fecha_pixelada),
@@ -130,9 +134,17 @@ def registrar_carta(sesion: Session, *, firma_id: str, nombre_completo: str, ema
                     estilo_id: str, fecha_hora: str, pdf_path: Path,
                     carga_id: str | None = None, fila_excel: int | None = None,
                     origen: str = "excel", summary_pdf_path: Path | None = None,
-                    modulo: str = "original", fecha_pixelada: bool = False) -> Carta:
-    """Inserta el registro de auditoría de una carta ya generada en disco."""
+                    modulo: str = "original", fecha_pixelada: bool = False,
+                    ip_estado: str | None = None) -> Carta:
+    """Inserta el registro de auditoría de una carta ya generada en disco.
+
+    ``ip_estado``: la IP plasmada en el Summary (ver ``generar_summary`` en
+    ``src/summary.py``); ``ip_tipo`` ("v4"/"v6") se deriva de ella sola para
+    poder filtrar en ``GET /cartas`` sin repetir la lógica en cada llamador.
+    """
     import hashlib
+
+    from src.summary import tipo_ip
 
     contenido = Path(pdf_path).read_bytes()
     carta = Carta(
@@ -147,6 +159,8 @@ def registrar_carta(sesion: Session, *, firma_id: str, nombre_completo: str, ema
         pdf_bytes=len(contenido),
         pdf_sha256=hashlib.sha256(contenido).hexdigest(),
         summary_pdf_path=str(summary_pdf_path) if summary_pdf_path else None,
+        ip_estado=ip_estado,
+        ip_tipo=tipo_ip(ip_estado) if ip_estado else None,
         origen=origen,
         modulo=modulo,
         fecha_pixelada=fecha_pixelada,

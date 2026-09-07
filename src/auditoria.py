@@ -34,7 +34,7 @@ from src.ingesta import leer_excel
 from src.main import _nombre_archivo
 from src.pdf_flatten import aplanar_campo, aplanar_pagina
 from src.pdf_stamper import load_template_config, stamp_pdf
-from src.summary import generar_summary
+from src.summary import PoolDeIPs, generar_summary
 
 router = APIRouter()
 
@@ -120,6 +120,7 @@ def _procesar_carga(carga_id: str, excel_path: Path, modulo: str = "original") -
         sesion.commit()
 
         selector = SelectorDeEstilos()  # nombre repetido -> diseño distinto
+        pool_ips = PoolDeIPs()  # una IP por titular, sin repetir dentro de esta carga
         destino = CARGAS_DIR / carga_id
         destino.mkdir(parents=True, exist_ok=True)
         usados: set[str] = set()
@@ -187,7 +188,9 @@ def _procesar_carga(carga_id: str, excel_path: Path, modulo: str = "original") -
                     stamp_pdf(TEMPLATE_PATH, salida, datos)
                 salida_summary = salida.with_name(f"{salida.stem}_Summary.pdf")
                 if modulo == "imagen":
-                    generar_summary(datos, salida_summary, config_path=IMAGEN_SUMMARY_CONFIG_PATH)
+                    ip_estado = generar_summary(
+                        datos, salida_summary, config_path=IMAGEN_SUMMARY_CONFIG_PATH, pool=pool_ips,
+                    )
                     if imagen_firma:
                         temporal_summary = salida_summary.with_name(f"{salida_summary.stem}__vector.pdf")
                         salida_summary.replace(temporal_summary)
@@ -199,7 +202,7 @@ def _procesar_carga(carga_id: str, excel_path: Path, modulo: str = "original") -
                         )
                         temporal_summary.unlink(missing_ok=True)
                 else:
-                    generar_summary(datos, salida_summary)
+                    ip_estado = generar_summary(datos, salida_summary, pool=pool_ips)
 
                 registrar_carta(
                     sesion, firma_id=firma_id,
@@ -210,6 +213,7 @@ def _procesar_carga(carga_id: str, excel_path: Path, modulo: str = "original") -
                     summary_pdf_path=salida_summary,
                     carga_id=carga_id, fila_excel=i, origen="excel",
                     modulo=modulo, fecha_pixelada=fecha_pixelada,
+                    ip_estado=ip_estado,
                 )
                 carga.filas_ok += 1
             except Exception:
@@ -389,13 +393,17 @@ def descargar_zip(carga_id: str) -> FileResponse:
 
 @router.get("/cartas")
 def listar_cartas(
-    carga_id: str = "", q: str = "", fecha_pixelada: str = "",
+    carga_id: str = "", q: str = "", fecha_pixelada: str = "", ip_tipo: str = "",
     pagina: int = Query(1, ge=1), por_pagina: int = Query(25, ge=1, le=200),
 ) -> dict:
     """``fecha_pixelada``: "" (todas), "si" o "no" — filtra por si esa carta
     salió con el pantallazo del campo Fecha (módulo "otro", ver
     ``OTRO_PROB_FECHA_PANTALLAZO``). Las del módulo "original" siempre
-    quedan fuera de "si" (nunca tienen ese pantallazo)."""
+    quedan fuera de "si" (nunca tienen ese pantallazo).
+
+    ``ip_tipo``: "" (todas), "v4" o "v6" — filtra por el tipo de IP plasmada
+    en el Summary de esa carta (ver ``elegir_ip``/``tipo_ip`` en
+    ``src/summary.py``)."""
     sesion = nueva_sesion()
     try:
         filtro = []
@@ -407,6 +415,8 @@ def listar_cartas(
             filtro.append(Carta.fecha_pixelada.is_(True))
         elif fecha_pixelada == "no":
             filtro.append(Carta.fecha_pixelada.is_(False))
+        if ip_tipo in ("v4", "v6"):
+            filtro.append(Carta.ip_tipo == ip_tipo)
         total = sesion.execute(
             select(func.count()).select_from(Carta).where(*filtro)
         ).scalar_one()
@@ -422,7 +432,7 @@ def listar_cartas(
 
 @router.get("/cartas/muestra")
 def muestra_aleatoria(n: int = Query(10, ge=1, le=200), carga_id: str = "",
-                      fecha_pixelada: str = "") -> dict:
+                      fecha_pixelada: str = "", ip_tipo: str = "") -> dict:
     """Muestra aleatoria de cartas para auditar (ORDER BY RAND())."""
     sesion = nueva_sesion()
     try:
@@ -431,6 +441,8 @@ def muestra_aleatoria(n: int = Query(10, ge=1, le=200), carga_id: str = "",
             filtro.append(Carta.fecha_pixelada.is_(True))
         elif fecha_pixelada == "no":
             filtro.append(Carta.fecha_pixelada.is_(False))
+        if ip_tipo in ("v4", "v6"):
+            filtro.append(Carta.ip_tipo == ip_tipo)
         cartas = sesion.execute(
             select(Carta).where(*filtro).order_by(func.rand()).limit(n)
         ).scalars().all()

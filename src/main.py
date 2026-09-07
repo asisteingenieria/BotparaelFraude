@@ -18,7 +18,7 @@ from pathlib import Path
 from src.firma_generator import SelectorDeEstilos
 from src.ingesta import leer_excel
 from src.pdf_stamper import stamp_pdf
-from src.summary import generar_summary
+from src.summary import PoolDeIPs, generar_summary
 
 DEFAULT_TEMPLATE = "templates/Obamacare  B2.pdf"
 DEFAULT_OUTPUT_DIR = "output/documentos"
@@ -53,6 +53,7 @@ def procesar(excel_path: str, template_path: str, output_dir: str) -> int:
 
     usados: set[str] = set()
     selector = SelectorDeEstilos()  # nombre repetido -> diseño distinto
+    pool_ips = PoolDeIPs()  # una IP por titular, sin repetir dentro de este lote
     generados = 0
     for datos in resultado.registros:
         datos["firma_nombre"] = datos["nombre_completo"]
@@ -70,7 +71,7 @@ def procesar(excel_path: str, template_path: str, output_dir: str) -> int:
         salida = Path(output_dir) / nombre_archivo
         stamp_pdf(template_path, salida, datos)
         salida_summary = salida.with_name(f"{salida.stem}_Summary.pdf")
-        generar_summary(datos, salida_summary)
+        generar_summary(datos, salida_summary, pool=pool_ips)
         print(f"Generado: {salida} (firma: {datos['firma_estilo_id']}) + {salida_summary.name}")
         generados += 1
 

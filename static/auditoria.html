@@ -50,6 +50,8 @@
   .pill.otro { background: #fdeee0; color: #a8480f; }
   .pill.imagen { background: #eaf3ea; color: #1f6b3a; }
   .pill.original { background: var(--azul-claro); color: var(--azul); }
+  .pill.v4 { background: #eaf3ea; color: #1f6b3a; }
+  .pill.v6 { background: #eef1fb; color: #3a3fb0; }
   #visor { position: sticky; top: 16px; }
   #visor iframe { width: 100%; height: 620px; border: 1px solid var(--borde);
                   border-radius: 8px; background: #fff; }
@@ -117,6 +119,11 @@
         <button class="sec" data-valor="si" id="tabPixelada">Fecha pixelada</button>
         <button class="sec" data-valor="no" id="tabNoPixelada">Fecha sin pixelar</button>
       </div>
+      <div class="fila" id="tabsIpTipo" style="margin-bottom:8px">
+        <button class="sec activa" data-valor="" id="tabIpTodas">Todas las IP</button>
+        <button class="sec" data-valor="v4" id="tabIpV4">Summary con IPv4</button>
+        <button class="sec" data-valor="v6" id="tabIpV6">Summary con IPv6</button>
+      </div>
       <div class="fila">
         <select id="selCarga" title="Filtrar por carga"><option value="">Todas las cargas</option></select>
         <input type="text" id="buscar" placeholder="Buscar nombre o correo...">
@@ -136,7 +143,7 @@
       <table>
         <thead><tr>
           <th>#</th><th>Cliente</th><th>Correo</th><th>Diseño</th>
-          <th>Fecha firma</th><th>Tamaño</th><th>SHA-256</th><th>UUID</th><th>Origen</th><th>Módulo</th><th>Fecha pixelada</th>
+          <th>Fecha firma</th><th>Tamaño</th><th>SHA-256</th><th>UUID</th><th>Origen</th><th>Módulo</th><th>Fecha pixelada</th><th>IP Summary</th>
         </tr></thead>
         <tbody id="cuerpoCartas"></tbody>
       </table>
@@ -163,7 +170,7 @@
 
 <script>
 const $ = id => document.getElementById(id);
-let pagina = 1, porPagina = 25, total = 0, cargaActual = "", modoMuestra = false, filtroFechaPixelada = "";
+let pagina = 1, porPagina = 25, total = 0, cargaActual = "", modoMuestra = false, filtroFechaPixelada = "", filtroIpTipo = "";
 
 function kb(bytes) { return (bytes / 1024).toFixed(1) + " KB"; }
 function esc(t) { const d = document.createElement("div"); d.textContent = t ?? ""; return d.innerHTML; }
@@ -232,7 +239,8 @@ function pintarCartas(cartas, desde) {
       <td><span class="pill ${c.origen}">${c.origen}</span></td>
       <td><span class="pill ${c.modulo}">${moduloLabel(c.modulo)}</span></td>
       <td>${c.modulo === "otro" ? `<span class="pill ${c.fecha_pixelada ? "otro" : "original"}">${c.fecha_pixelada ? "sí" : "no"}</span>` : "—"}</td>
-    </tr>`).join("") || '<tr><td colspan="11" style="color:var(--gris)">Sin cartas.</td></tr>';
+      <td>${c.ip_tipo ? `<span class="pill ${c.ip_tipo}" title="${esc(c.ip_estado || "")}">${c.ip_tipo === "v6" ? "IPv6" : "IPv4"}</span>` : "—"}</td>
+    </tr>`).join("") || '<tr><td colspan="12" style="color:var(--gris)">Sin cartas.</td></tr>';
   window._cartas = Object.fromEntries(cartas.map(c => [c.id, c]));
 }
 
@@ -240,7 +248,7 @@ async function cargarCartas() {
   modoMuestra = false; $("avisoMuestra").style.display = "none";
   const q = new URLSearchParams({
     carga_id: $("selCarga").value, q: $("buscar").value,
-    fecha_pixelada: filtroFechaPixelada,
+    fecha_pixelada: filtroFechaPixelada, ip_tipo: filtroIpTipo,
     pagina: String(pagina), por_pagina: String(porPagina),
   });
   const data = await (await fetch("/cartas?" + q)).json();
@@ -315,7 +323,7 @@ async function eliminarCarga() {
 
 async function muestraAleatoria() {
   const n = $("nMuestra").value || 10;
-  const q = new URLSearchParams({ n, carga_id: $("selCarga").value, fecha_pixelada: filtroFechaPixelada });
+  const q = new URLSearchParams({ n, carga_id: $("selCarga").value, fecha_pixelada: filtroFechaPixelada, ip_tipo: filtroIpTipo });
   const data = await (await fetch("/cartas/muestra?" + q)).json();
   modoMuestra = true;
   pintarCartas(data.cartas, 0);
@@ -341,6 +349,7 @@ function verCarta(id, fila) {
     `${c.modulo === "otro" ? ` · Fecha pixelada: <b>${c.fecha_pixelada ? "sí" : "no"}</b>` : ""}<br>` +
     `Diseño: <b>${esc(c.firma_estilo_id)}</b> · Firmada: ${esc(c.firma_fecha_hora)} · ` +
     `Tamaño: <b>${kb(c.pdf_bytes)}</b><br>` +
+    `${c.ip_tipo ? `IP Summary: <b>${esc(c.ip_estado)}</b> (${c.ip_tipo === "v6" ? "IPv6" : "IPv4"})<br>` : ""}` +
     `UUID: <span class="mono">${c.id}</span><br>` +
     `SHA-256: <span class="mono">${c.pdf_sha256}</span>`;
 }
@@ -374,6 +383,17 @@ function elegirTabFechaPixelada(boton) {
 $("tabTodas").onclick = () => elegirTabFechaPixelada($("tabTodas"));
 $("tabPixelada").onclick = () => elegirTabFechaPixelada($("tabPixelada"));
 $("tabNoPixelada").onclick = () => elegirTabFechaPixelada($("tabNoPixelada"));
+
+function elegirTabIpTipo(boton) {
+  filtroIpTipo = boton.dataset.valor;
+  document.querySelectorAll("#tabsIpTipo button").forEach(b => b.classList.remove("activa"));
+  boton.classList.add("activa");
+  pagina = 1;
+  cargarCartas();
+}
+$("tabIpTodas").onclick = () => elegirTabIpTipo($("tabIpTodas"));
+$("tabIpV4").onclick = () => elegirTabIpTipo($("tabIpV4"));
+$("tabIpV6").onclick = () => elegirTabIpTipo($("tabIpV6"));
 
 async function cargarFirmasReales() {
   const lista = await (await fetch("/firmas-reales")).json();

@@ -144,7 +144,7 @@ def generar_documento(datos: DatosPersona) -> FileResponse:
 
     stamp_pdf(TEMPLATE_PATH, salida, data)
     salida_summary = salida.with_name(f"{salida.stem}_Summary.pdf")
-    generar_summary(data, salida_summary)
+    ip_estado = generar_summary(data, salida_summary)
 
     # Registro de auditoría en MySQL (origen 'api'). Si la BD no está
     # disponible, el documento igual se entrega — solo se pierde el registro.
@@ -157,6 +157,7 @@ def generar_documento(datos: DatosPersona) -> FileResponse:
                 nombre_completo=data["nombre_completo"], email=datos.email,
                 estilo_id=estilo_id, fecha_hora=data["firma_fecha_hora"],
                 pdf_path=salida, summary_pdf_path=salida_summary, origen="api",
+                ip_estado=ip_estado,
             )
             sesion.commit()
         finally:
