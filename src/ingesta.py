@@ -285,7 +285,7 @@ def leer_excel(ruta: str) -> ResultadoIngesta:
             datos.pop("tipo_solicitud", None)
             datos.pop("parentesco", None)  # informativo; no tiene campo propio en la carta
 
-            if tipo == "beneficiario":
+            if tipo.startswith("beneficiar"):
                 if cotizante_actual is None:
                     resultado.invalidas.append(
                         FilaInvalida(numero_fila, "fila de beneficiario sin un cotizante previo")
